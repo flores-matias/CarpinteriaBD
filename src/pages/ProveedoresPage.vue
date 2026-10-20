@@ -145,6 +145,13 @@ const columns: QTableColumn<ProveedorResponseDto>[] = [
     field: 'email',
     align: 'left',
     sortable: true
+  },
+  {
+    name: 'acciones',
+    label: 'Acciones',
+    field: 'id',
+    align: 'right',
+    sortable: false
   }
 ]
 
