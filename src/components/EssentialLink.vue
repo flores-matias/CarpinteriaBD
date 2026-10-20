@@ -1,36 +1,40 @@
 <template>
-  <q-item clickable tag="a" target="_blank" :href="props.link">
-    <q-item-section v-if="props.icon" avatar>
-      <q-icon :name="props.icon" />
+  <q-item
+    clickable
+    :tag="isExternal ? 'a' : undefined"
+    :href="isExternal ? link : undefined"
+    :target="isExternal ? '_blank' : undefined"
+    :rel="isExternal ? 'noopener noreferrer' : undefined"
+    :to="isExternal ? undefined : link"
+  >
+    <q-item-section v-if="icon" avatar>
+      <q-icon :name="icon" />
     </q-item-section>
 
     <q-item-section>
-      <q-item-label>{{ props.label }}</q-item-label>
-      <q-item-label caption>{{ props.caption }}</q-item-label>
+      <q-item-label>{{ title }}</q-item-label>
+      <q-item-label caption>{{ caption }}</q-item-label>
     </q-item-section>
   </q-item>
 </template>
 
-<script setup>
-const props = defineProps({
-  label: {
-    type: String,
-    required: true
-  },
+<script setup lang="ts">
+import { computed } from 'vue'
 
-  caption: {
-    type: String,
-    default: ''
-  },
+export interface EssentialLinkProps {
+  title: string
+  caption?: string
+  link?: string
+  icon?: string
+}
 
-  link: {
-    type: String,
-    default: '#'
-  },
-
-  icon: {
-    type: String,
-    default: ''
-  }
+const props = withDefaults(defineProps<EssentialLinkProps>(), {
+  caption: '',
+  link: '#',
+  icon: ''
 })
+
+const isExternal = computed(() =>
+  /^(https?:)?\/\/|^mailto:|^tel:/.test(props.link)
+)
 </script>

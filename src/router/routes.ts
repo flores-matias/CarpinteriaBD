@@ -1,10 +1,17 @@
-const routes = [
+import type { RouteRecordRaw } from 'vue-router'
+
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('@/layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('@/pages/IndexPage.vue') },
-      { path: 'second', component: () => import('@/pages/SecondPage.vue') }
+      { path: '/login', component: () => import('@/pages/Auth/LoginPage.vue') },
+      {
+        path: 'proveedores',
+        component: () => import('@/pages/ProveedoresPage.vue'),
+        meta: { requiresAuth: true }
+      }
     ]
   },
 

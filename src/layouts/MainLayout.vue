@@ -11,9 +11,15 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-toolbar-title> Carpinteria-BA </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <!-- Con sesion: nombre de usuario y boton para salir. Sin sesion: boton para ingresar -->
+        <template v-if="auth.isAuthenticated">
+          <q-icon name="person" class="q-mr-xs" />
+          <span class="q-mr-md">{{ auth.userName }}</span>
+          <q-btn flat dense label="Salir" icon="logout" @click="onLogout" />
+        </template>
+        <q-btn v-else flat dense label="Ingresar" icon="login" to="/login" />
       </q-toolbar>
     </q-header>
 
@@ -23,7 +29,7 @@
 
         <EssentialLink
           v-for="link in linksList"
-          :key="link.label"
+          :key="link.title"
           v-bind="link"
         />
       </q-list>
@@ -35,52 +41,29 @@
   </q-layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import EssentialLink from '@/components/EssentialLink.vue'
+import { useRouter } from 'vue-router'
+import EssentialLink, {
+  type EssentialLinkProps
+} from '@/components/EssentialLink.vue'
+import { useAuthStore } from '../stores/auth'
 
-const linksList = [
+const auth = useAuthStore()
+const router = useRouter()
+
+async function onLogout() {
+  auth.logout()
+  await router.push('/login')
+}
+
+const linksList: EssentialLinkProps[] = [
   {
-    label: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    label: 'GitHub',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    label: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    label: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    label: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    label: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    label: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
+    title: 'Proveedores',
+    caption: 'Lista de proveedores',
     icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
+    link: '/proveedores'
+    //link: 'http://localhost:9000/#/proveedores'
   }
 ]
 
