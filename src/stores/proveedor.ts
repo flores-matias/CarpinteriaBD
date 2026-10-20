@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { isAxiosError } from 'axios'
 import { api } from '../boot/axios'
-import { ProveedorResponseDto } from '../models/ProveedorResponseDto'
+import type { ProveedorResponseDto } from '../models/ProveedorResponseDto'
 
 export const useProveedorStore = defineStore('proveedor', () => {
   const proveedores = ref<ProveedorResponseDto[]>([])

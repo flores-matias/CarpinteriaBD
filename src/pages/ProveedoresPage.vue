@@ -8,7 +8,7 @@
       :loading="proveedorStore.loading"
       :rows-per-page-options="[10, 20, 50, 0]"
       no-data-label="No hay proveedores para mostrar"
-      loading-label="Cargando autores..."
+      loading-label="Cargando proveedores..."
     >
       <template #top-right>
         <q-btn

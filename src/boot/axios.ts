@@ -1,28 +1,48 @@
-import { boot } from 'quasar/wrappers'
-import axios, { type AxiosInstance } from 'axios'
+import { defineBoot } from '#q-app'
+import axios, { isAxiosError, type AxiosInstance } from 'axios'
+import { useAuthStore } from '../stores/auth'
 
-declare module '@vue/runtime-core' {
+declare module 'vue' {
   interface ComponentCustomProperties {
-    $axios: AxiosInstance$api: AxiosInstance
+    $axios: AxiosInstance
+    $api: AxiosInstance
   }
 }
 
-const api = axios.create({ baseURL: 'https://localhost:7236/api' })
+// Instancia de axios apuntando a la API de Carpinteria.
+// Tiene que coincidir con el perfil "https" de launchSettings.json del back (puerto 7236).
+// Los stores importan `api` directamente; `$api` queda disponible en los componentes.
+const api = axios.create({
+  baseURL: 'https://localhost:7236/api',
+  headers: { 'Content-Type': 'application/json' }
+})
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
-export default boot(({ app }) => {
+export default defineBoot(({ app, router }) => {
   app.config.globalProperties.$axios = axios
   app.config.globalProperties.$api = api
+
+  // ANTES de cada peticion: si hay sesion, se agrega el token en el header Authorization
+  api.interceptors.request.use(config => {
+    const auth = useAuthStore()
+    if (auth.token) {
+      config.headers.Authorization = `Bearer ${auth.token}`
+    }
+    return config
+  })
+
+  // DESPUES de cada respuesta: si la API contesta 401, el token no sirve mas (vencido o invalido)
+  api.interceptors.response.use(
+    response => response,
+    (error: unknown) => {
+      if (isAxiosError(error) && error.response?.status === 401) {
+        useAuthStore().logout()
+        void router.push('/login')
+      }
+      return Promise.reject(
+        error instanceof Error ? error : new Error(String(error))
+      )
+    }
+  )
 })
 
 export { api }
