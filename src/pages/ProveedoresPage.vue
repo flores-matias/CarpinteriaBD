@@ -84,7 +84,7 @@
 
     <!-- Alta y modificacion comparten el mismo formulario -->
     <q-dialog v-model="mostrarFormulario">
-      <AutorCreate :edit-id="editId" @close="cerrarFormulario" />
+      <ProveedorCreate :edit-id="editId" @close="cerrarFormulario" />
     </q-dialog>
 
     <!-- La baja siempre se confirma antes de ejecutarse -->

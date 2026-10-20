@@ -84,7 +84,7 @@ const form = ref<ProveedorRequestDto>({
   email: ''
 })
 
-// Si es modificacion, se traen los datos actuales del autor
+// Si es modificacion, se traen los datos actuales del proveedor
 onMounted(async () => {
   if (props.editId) {
     const proveedor = await proveedorStore.fetchById(props.editId)
@@ -111,7 +111,7 @@ async function onSubmit() {
     }
     emit('close')
   } catch {
-    notificarError('No se pudo guardar el autor')
+    notificarError('No se pudo guardar el proveedor')
   }
 }
 </script>
