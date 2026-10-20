@@ -70,7 +70,7 @@ async function onSubmit() {
   const ok = await auth.login(credenciales.value)
   if (ok) {
     // Forzamos la redirección a proveedores o al inicio
-    await router.push('/proveedores')
+    await router.push('/')
   }
 }
 </script>
