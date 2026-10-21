@@ -111,7 +111,7 @@
 import { onMounted, ref } from 'vue'
 import type { QTableColumn } from 'quasar'
 import { useProveedorStore } from '../stores/proveedor'
-import type { ProveedorResponseDto } from '../models/ProveedorResponseDto'
+import type { ProveedorResponseDto } from '../models/Proveedor/ProveedorResponseDto'
 import ProveedorCreate from '@/components/Proveedor/ProveedorCreate.vue'
 import { notificarError } from '@/utils/notificar'
 

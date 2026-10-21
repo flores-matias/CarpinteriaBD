@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { isAxiosError } from 'axios'
 import { api } from '../boot/axios'
-import type { ProveedorResponseDto } from '../models/ProveedorResponseDto'
-import type { ProveedorRequestDto } from '../models/ProveedorRequestDto'
+import type { ProveedorResponseDto } from '../models/Proveedor/ProveedorResponseDto'
+import type { ProveedorRequestDto } from '../models/Proveedor/ProveedorRequestDto'
 import { notificarExito } from '../utils/notificar'
 
 export const useProveedorStore = defineStore('proveedor', () => {

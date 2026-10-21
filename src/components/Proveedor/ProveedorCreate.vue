@@ -67,7 +67,7 @@
 import { onMounted, ref } from 'vue'
 import type { QForm } from 'quasar'
 import { useProveedorStore } from '@/stores/proveedor'
-import type { ProveedorRequestDto } from '@/models/ProveedorRequestDto'
+import type { ProveedorRequestDto } from '@/models/Proveedor/ProveedorRequestDto'
 import { notificarError } from '@/utils/notificar'
 
 // editId null = alta; con numero = modificacion
