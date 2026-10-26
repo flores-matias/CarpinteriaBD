@@ -99,6 +99,12 @@ const linksList: EssentialLinkProps[] = [
     caption: 'Medios de pago aceptados',
     icon: 'payments',
     link: '/tipos-pago'
+  },
+  {
+    title: 'Insumos',
+    caption: 'Materiales y stock',
+    icon: 'inventory_2',
+    link: '/insumos'
   }
 ]
 
