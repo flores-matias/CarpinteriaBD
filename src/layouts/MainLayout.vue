@@ -32,6 +32,18 @@
           :key="link.title"
           v-bind="link"
         />
+
+        <!-- Administracion: solo se muestra con sesion iniciada -->
+        <template v-if="auth.isAuthenticated">
+          <q-separator class="q-my-sm" />
+          <q-item-label header> Administracion </q-item-label>
+
+          <EssentialLink
+            v-for="link in linksAdmin"
+            :key="link.title"
+            v-bind="link"
+          />
+        </template>
       </q-list>
     </q-drawer>
 
@@ -63,7 +75,40 @@ const linksList: EssentialLinkProps[] = [
     caption: 'Lista de proveedores',
     icon: 'favorite',
     link: '/proveedores'
-    //link: 'http://localhost:9000/#/proveedores'
+  },
+  {
+    title: 'Clientes',
+    caption: 'Lista de clientes',
+    icon: 'people',
+    link: '/clientes'
+  },
+  {
+    title: 'Configuraciones',
+    caption: 'Parametros del sistema',
+    icon: 'settings',
+    link: '/configuraciones'
+  },
+  {
+    title: 'Muebles',
+    caption: 'Catalogo de muebles',
+    icon: 'chair',
+    link: '/muebles'
+  },
+  {
+    title: 'Tipos de pago',
+    caption: 'Medios de pago aceptados',
+    icon: 'payments',
+    link: '/tipos-pago'
+  }
+]
+
+// Links que solo ve un usuario logueado
+const linksAdmin: EssentialLinkProps[] = [
+  {
+    title: 'Usuarios',
+    caption: 'Registrar usuarios',
+    icon: 'manage_accounts',
+    link: '/usuarios'
   }
 ]
 

@@ -3,5 +3,5 @@ export interface UserRegistroRequestDto {
   apellidos: string
   email: string
   password: string
-  fechaNacimiento: string
+  fechaNacimiento: string | null
 }

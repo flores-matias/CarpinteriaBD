@@ -11,6 +11,31 @@ const routes: RouteRecordRaw[] = [
         path: 'proveedores',
         component: () => import('@/pages/ProveedoresPage.vue'),
         meta: { requiresAuth: true }
+      },
+      {
+        path: 'clientes',
+        component: () => import('@/pages/ClientesPage.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'configuraciones',
+        component: () => import('@/pages/ConfiguracionesPage.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'muebles',
+        component: () => import('@/pages/MueblesPage.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'tipos-pago',
+        component: () => import('@/pages/TiposPagoPage.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'usuarios',
+        component: () => import('@/pages/UsersPage.vue'),
+        meta: { requiresAuth: true }
       }
     ]
   },
