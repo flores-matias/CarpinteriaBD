@@ -125,7 +125,7 @@ import type { QTableColumn } from 'quasar'
 import { useConfiguracionStore } from '../stores/configuracion'
 import type { ConfiguracionResponseDto } from '../models/Configuracion/ConfiguracionResponseDto'
 import ConfiguracionCreate from '@/components/Configuracion/ConfiguracionCreate.vue'
-import { notificarError } from '@/utils/notificar'
+import { mensajeDeError, notificarError } from '@/utils/notificar'
 
 const configuracionStore = useConfiguracionStore()
 
@@ -199,8 +199,8 @@ async function eliminar() {
     if (idABorrar.value !== null) {
       await configuracionStore.borrar(idABorrar.value)
     }
-  } catch {
-    notificarError('No se pudo eliminar la configuracion')
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo eliminar la configuracion'))
   } finally {
     confirmandoBaja.value = false
     recargar()

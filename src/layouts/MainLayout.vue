@@ -105,6 +105,12 @@ const linksList: EssentialLinkProps[] = [
     caption: 'Materiales y stock',
     icon: 'inventory_2',
     link: '/insumos'
+  },
+  {
+    title: 'Pedidos',
+    caption: 'Pedidos de clientes',
+    icon: 'receipt_long',
+    link: '/pedidos'
   }
 ]
 

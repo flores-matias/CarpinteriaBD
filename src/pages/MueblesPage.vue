@@ -121,7 +121,7 @@ import type { QTableColumn } from 'quasar'
 import { useMuebleStore } from '../stores/mueble'
 import type { MuebleResponseDto } from '../models/Mueble/MuebleResponseDto'
 import MuebleCreate from '@/components/Mueble/MuebleCreate.vue'
-import { notificarError } from '@/utils/notificar'
+import { mensajeDeError, notificarError } from '@/utils/notificar'
 
 const muebleStore = useMuebleStore()
 
@@ -198,8 +198,8 @@ async function eliminar() {
     if (idABorrar.value !== null) {
       await muebleStore.borrar(idABorrar.value)
     }
-  } catch {
-    notificarError('No se pudo eliminar el mueble')
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo eliminar el mueble'))
   } finally {
     confirmandoBaja.value = false
     recargar()

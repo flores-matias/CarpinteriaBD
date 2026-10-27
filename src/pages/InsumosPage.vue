@@ -166,7 +166,7 @@ import { useInsumoStore } from '../stores/insumo'
 import { useProveedorStore } from '../stores/proveedor'
 import type { InsumoResponseDto } from '../models/Insumo/InsumoResponseDto'
 import InsumoCreate from '@/components/Insumo/InsumoCreate.vue'
-import { notificarError } from '@/utils/notificar'
+import { mensajeDeError, notificarError } from '@/utils/notificar'
 
 const insumoStore = useInsumoStore()
 const proveedorStore = useProveedorStore()
@@ -276,8 +276,8 @@ async function guardarPrecio() {
     await insumoStore.actualizarPrecio(insumoPrecio.value.id, nuevoPrecio.value)
     mostrarPrecio.value = false
     recargar()
-  } catch {
-    notificarError('No se pudo actualizar el precio')
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo actualizar el precio'))
   }
 }
 
@@ -291,8 +291,8 @@ async function eliminar() {
     if (idABorrar.value !== null) {
       await insumoStore.borrar(idABorrar.value)
     }
-  } catch {
-    notificarError('No se pudo eliminar el insumo')
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo eliminar el insumo'))
   } finally {
     confirmandoBaja.value = false
     recargar()

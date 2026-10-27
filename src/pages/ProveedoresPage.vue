@@ -113,7 +113,7 @@ import type { QTableColumn } from 'quasar'
 import { useProveedorStore } from '../stores/proveedor'
 import type { ProveedorResponseDto } from '../models/Proveedor/ProveedorResponseDto'
 import ProveedorCreate from '@/components/Proveedor/ProveedorCreate.vue'
-import { notificarError } from '@/utils/notificar'
+import { mensajeDeError, notificarError } from '@/utils/notificar'
 
 const proveedorStore = useProveedorStore()
 
@@ -184,8 +184,8 @@ async function eliminar() {
     if (idABorrar.value !== null) {
       await proveedorStore.borrar(idABorrar.value)
     }
-  } catch {
-    notificarError('No se pudo eliminar el proveedor')
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo eliminar el proveedor'))
   } finally {
     confirmandoBaja.value = false
     recargar()

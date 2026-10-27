@@ -125,7 +125,7 @@ import type { QTableColumn } from 'quasar'
 import { useTipoPagoStore } from '../stores/tipoPago'
 import type { TipoPagoResponseDto } from '../models/TipoPago/TipoPagoResponseDto'
 import TipoPagoCreate from '@/components/TipoPago/TipoPagoCreate.vue'
-import { notificarError } from '@/utils/notificar'
+import { mensajeDeError, notificarError } from '@/utils/notificar'
 
 const tipoPagoStore = useTipoPagoStore()
 
@@ -182,8 +182,8 @@ async function eliminar() {
     if (idABorrar.value !== null) {
       await tipoPagoStore.borrar(idABorrar.value)
     }
-  } catch {
-    notificarError('No se pudo eliminar el tipo de pago')
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo eliminar el tipo de pago'))
   } finally {
     confirmandoBaja.value = false
     recargar()

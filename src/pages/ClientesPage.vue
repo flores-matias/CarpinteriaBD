@@ -113,7 +113,7 @@ import type { QTableColumn } from 'quasar'
 import { useClienteStore } from '../stores/cliente'
 import type { ClienteResponseDto } from '../models/Cliente/ClienteResponseDto'
 import ClienteCreate from '@/components/Cliente/ClienteCreate.vue'
-import { notificarError } from '@/utils/notificar'
+import { mensajeDeError, notificarError } from '@/utils/notificar'
 
 const clienteStore = useClienteStore()
 
@@ -198,8 +198,8 @@ async function eliminar() {
     if (idABorrar.value !== null) {
       await clienteStore.borrar(idABorrar.value)
     }
-  } catch {
-    notificarError('No se pudo eliminar el cliente')
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo eliminar el cliente'))
   } finally {
     confirmandoBaja.value = false
     recargar()

@@ -115,7 +115,7 @@ import type { QForm } from 'quasar'
 import { useInsumoStore } from '@/stores/insumo'
 import { useProveedorStore } from '@/stores/proveedor'
 import type { InsumoRequestDto } from '@/models/Insumo/InsumoRequestDto'
-import { notificarError } from '@/utils/notificar'
+import { mensajeDeError, notificarError } from '@/utils/notificar'
 
 // editId null = alta; con numero = modificacion
 const props = defineProps<{ editId: number | null }>()
@@ -189,8 +189,8 @@ async function onSubmit() {
       await insumoStore.create(insumo)
     }
     emit('close')
-  } catch {
-    notificarError('No se pudo guardar el insumo')
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo guardar el insumo'))
   }
 }
 </script>

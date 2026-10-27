@@ -68,7 +68,7 @@ import { onMounted, ref } from 'vue'
 import type { QForm } from 'quasar'
 import { useProveedorStore } from '@/stores/proveedor'
 import type { ProveedorRequestDto } from '@/models/Proveedor/ProveedorRequestDto'
-import { notificarError } from '@/utils/notificar'
+import { mensajeDeError, notificarError } from '@/utils/notificar'
 
 // editId null = alta; con numero = modificacion
 const props = defineProps<{ editId: number | null }>()
@@ -110,8 +110,8 @@ async function onSubmit() {
       await proveedorStore.create(form.value)
     }
     emit('close')
-  } catch {
-    notificarError('No se pudo guardar el proveedor')
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo guardar el proveedor'))
   }
 }
 </script>
