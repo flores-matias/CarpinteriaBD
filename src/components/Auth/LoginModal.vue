@@ -9,8 +9,9 @@
   >
     <q-card class="q-pa-md" style="width: 360px; max-width: 90vw">
       <q-card-section class="text-center q-pb-none">
-        <q-icon name="menu_book" size="48px" color="primary" />
-        <div class="text-h6 q-mt-sm">Iniciar sesion</div>
+        <q-icon name="carpenter" size="48px" color="primary" />
+        <div class="text-h6 q-mt-sm">Carpintería BA</div>
+        <div class="text-caption text-grey-7">Iniciar sesión</div>
       </q-card-section>
 
       <q-card-section>
@@ -25,11 +26,11 @@
           />
           <q-input
             v-model="credenciales.password"
-            label="Contrasena"
+            label="Contraseña"
             :type="verPassword ? 'text' : 'password'"
             outlined
             class="q-mt-sm"
-            :rules="[(v: string) => !!v || 'Ingresa la contrasena']"
+            :rules="[(v: string) => !!v || 'Ingresa la contraseña']"
           >
             <template #append>
               <q-icon
@@ -71,6 +72,7 @@ import type { LoginUserRequestDto } from '@/models/Auth/LoginUserRequestDto'
 const auth = useAuthStore()
 const formRef = ref<QForm | null>(null)
 
+// El popup se muestra mientras no haya sesion, y se cierra solo al loguearse
 const mostrar = ref(!auth.isAuthenticated)
 watch(
   () => auth.isAuthenticated,

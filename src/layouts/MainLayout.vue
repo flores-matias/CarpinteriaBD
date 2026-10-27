@@ -12,7 +12,7 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Carpinteria BA </q-toolbar-title>
+        <q-toolbar-title> Carpintería BA </q-toolbar-title>
 
         <template v-if="auth.isAuthenticated">
           <q-icon name="person" class="q-mr-xs" />
@@ -29,10 +29,20 @@
       bordered
     >
       <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+        <q-item-label header> Menú </q-item-label>
 
         <EssentialLink
           v-for="link in linksList"
+          :key="link.title"
+          v-bind="link"
+        />
+
+        <!-- Administracion: el drawer ya solo se ve con sesion, pero queda separado para cuando haya roles -->
+        <q-separator class="q-my-sm" />
+        <q-item-label header> Administración </q-item-label>
+
+        <EssentialLink
+          v-for="link in linksAdmin"
           :key="link.title"
           v-bind="link"
         />
@@ -43,6 +53,7 @@
       <router-view />
     </q-page-container>
 
+    <!-- Popup de login: se abre solo cuando no hay sesion -->
     <LoginModal />
   </q-layout>
 </template>
@@ -69,47 +80,10 @@ const router = useRouter()
 
 async function onLogout() {
   auth.logout()
-  //await router.push('/login')
   await router.push('/')
 }
 
 const linksList: EssentialLinkProps[] = [
-  {
-    title: 'Proveedores',
-    caption: 'Lista de proveedores',
-    icon: 'inventory',
-    link: '/proveedores'
-  },
-  {
-    title: 'Clientes',
-    caption: 'Lista de clientes',
-    icon: 'people',
-    link: '/clientes'
-  },
-  {
-    title: 'Configuraciones',
-    caption: 'Parametros del sistema',
-    icon: 'settings',
-    link: '/configuraciones'
-  },
-  {
-    title: 'Muebles',
-    caption: 'Catalogo de muebles',
-    icon: 'chair',
-    link: '/muebles'
-  },
-  {
-    title: 'Tipos de pago',
-    caption: 'Medios de pago aceptados',
-    icon: 'payments',
-    link: '/tipos-pago'
-  },
-  {
-    title: 'Insumos',
-    caption: 'Materiales y stock',
-    icon: 'inventory_2',
-    link: '/insumos'
-  },
   {
     title: 'Pedidos',
     caption: 'Pedidos de clientes',
@@ -121,11 +95,47 @@ const linksList: EssentialLinkProps[] = [
     caption: 'Cobros de pedidos',
     icon: 'point_of_sale',
     link: '/pagos'
+  },
+  {
+    title: 'Clientes',
+    caption: 'Lista de clientes',
+    icon: 'people',
+    link: '/clientes'
+  },
+  {
+    title: 'Muebles',
+    caption: 'Catalogo, recetas y costos',
+    icon: 'chair',
+    link: '/muebles'
+  },
+  {
+    title: 'Insumos',
+    caption: 'Materiales y stock',
+    icon: 'inventory_2',
+    link: '/insumos'
+  },
+  {
+    title: 'Proveedores',
+    caption: 'Lista de proveedores',
+    icon: 'local_shipping',
+    link: '/proveedores'
+  },
+  {
+    title: 'Tipos de pago',
+    caption: 'Medios de pago aceptados',
+    icon: 'payments',
+    link: '/tipos-pago'
   }
 ]
 
-// Links que solo ve un usuario logueado
+// Seccion Administracion (cuando haya roles, se mostrara solo al Admin)
 const linksAdmin: EssentialLinkProps[] = [
+  {
+    title: 'Configuraciones',
+    caption: 'Margenes y parametros',
+    icon: 'settings',
+    link: '/configuraciones'
+  },
   {
     title: 'Usuarios',
     caption: 'Registrar usuarios',
