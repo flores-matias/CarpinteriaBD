@@ -111,6 +111,12 @@ const linksList: EssentialLinkProps[] = [
     caption: 'Pedidos de clientes',
     icon: 'receipt_long',
     link: '/pedidos'
+  },
+  {
+    title: 'Pagos',
+    caption: 'Cobros de pedidos',
+    icon: 'point_of_sale',
+    link: '/pagos'
   }
 ]
 

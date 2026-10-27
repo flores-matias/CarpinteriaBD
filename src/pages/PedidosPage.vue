@@ -114,9 +114,18 @@
             </q-td>
           </template>
 
-          <!-- Columna de acciones: un boton por cada operacion del ABM -->
+          <!-- Columna de acciones: ver muebles, editar y eliminar -->
           <template #body-cell-acciones="props">
             <q-td class="text-right">
+              <q-btn
+                dense
+                flat
+                color="secondary"
+                icon="chair"
+                :to="`/pedidos/${props.row.id}/detalle`"
+              >
+                <q-tooltip>Ver muebles del pedido</q-tooltip>
+              </q-btn>
               <q-btn
                 dense
                 flat
