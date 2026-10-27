@@ -1,8 +1,9 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated :class="{ 'fondo-bloqueado': !auth.isAuthenticated }">
       <q-toolbar>
         <q-btn
+          v-if="auth.isAuthenticated"
           flat
           dense
           round
@@ -11,19 +12,22 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Carpinteria-BA </q-toolbar-title>
+        <q-toolbar-title> Carpinteria BA </q-toolbar-title>
 
-        <!-- Con sesion: nombre de usuario y boton para salir. Sin sesion: boton para ingresar -->
         <template v-if="auth.isAuthenticated">
           <q-icon name="person" class="q-mr-xs" />
           <span class="q-mr-md">{{ auth.userName }}</span>
           <q-btn flat dense label="Salir" icon="logout" @click="onLogout" />
         </template>
-        <q-btn v-else flat dense label="Ingresar" icon="login" to="/login" />
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer
+      v-if="auth.isAuthenticated"
+      v-model="leftDrawerOpen"
+      show-if-above
+      bordered
+    >
       <q-list>
         <q-item-label header> Essential Links </q-item-label>
 
@@ -32,26 +36,24 @@
           :key="link.title"
           v-bind="link"
         />
-
-        <!-- Administracion: solo se muestra con sesion iniciada -->
-        <template v-if="auth.isAuthenticated">
-          <q-separator class="q-my-sm" />
-          <q-item-label header> Administracion </q-item-label>
-
-          <EssentialLink
-            v-for="link in linksAdmin"
-            :key="link.title"
-            v-bind="link"
-          />
-        </template>
       </q-list>
     </q-drawer>
 
-    <q-page-container>
+    <q-page-container :class="{ 'fondo-bloqueado': !auth.isAuthenticated }">
       <router-view />
     </q-page-container>
+
+    <LoginModal />
   </q-layout>
 </template>
+
+<style scoped>
+.fondo-bloqueado {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+</style>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -59,14 +61,16 @@ import { useRouter } from 'vue-router'
 import EssentialLink, {
   type EssentialLinkProps
 } from '@/components/EssentialLink.vue'
-import { useAuthStore } from '../stores/auth'
+import LoginModal from '@/components/Auth/LoginModal.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
 
 async function onLogout() {
   auth.logout()
-  await router.push('/login')
+  //await router.push('/login')
+  await router.push('/')
 }
 
 const linksList: EssentialLinkProps[] = [
