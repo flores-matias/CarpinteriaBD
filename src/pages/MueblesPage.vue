@@ -50,7 +50,7 @@
           <!-- Descripcion recortada con "..." y el texto completo en un tooltip -->
           <template #body-cell-descripcion="props">
             <q-td :props="props">
-              <div class="ellipsis" style="max-width: 350px">
+              <div class="ellipsis" style="max-width: 300px">
                 {{ props.value }}
               </div>
               <q-tooltip max-width="400px" class="text-body2">
@@ -59,9 +59,48 @@
             </q-td>
           </template>
 
-          <!-- Columna de acciones: un boton por cada operacion del ABM -->
+          <!-- Precio calculado: guion si no tiene receta; aviso si no coincide con el sugerido -->
+          <template #body-cell-precioCalculado="props">
+            <q-td :props="props">
+              <span v-if="props.row.costoMateriales === 0" class="text-grey-5">
+                Sin receta
+              </span>
+              <template v-else>
+                <span>{{ props.value }}</span>
+                <q-icon
+                  v-if="props.row.precioCalculado !== props.row.precioSugerido"
+                  name="warning"
+                  :color="
+                    props.row.precioSugerido < props.row.precioCalculado
+                      ? 'negative'
+                      : 'info'
+                  "
+                  class="q-ml-xs"
+                >
+                  <q-tooltip>
+                    {{
+                      props.row.precioSugerido < props.row.precioCalculado
+                        ? 'El precio sugerido esta por debajo del calculado'
+                        : 'El precio sugerido esta por encima del calculado'
+                    }}
+                  </q-tooltip>
+                </q-icon>
+              </template>
+            </q-td>
+          </template>
+
+          <!-- Columna de acciones: receta, editar y eliminar -->
           <template #body-cell-acciones="props">
             <q-td class="text-right">
+              <q-btn
+                dense
+                flat
+                color="secondary"
+                icon="receipt_long"
+                :to="`/muebles/${props.row.id}/receta`"
+              >
+                <q-tooltip>Ver receta y costos</q-tooltip>
+              </q-btn>
               <q-btn
                 dense
                 flat
@@ -131,6 +170,13 @@ const editId = ref<number | null>(null)
 const confirmandoBaja = ref(false)
 const idABorrar = ref<number | null>(null)
 
+function formatoMoneda(val: number) {
+  return Number(val).toLocaleString('es-AR', {
+    style: 'currency',
+    currency: 'ARS'
+  })
+}
+
 const columns: QTableColumn<MuebleResponseDto>[] = [
   { name: 'id', label: 'Id', field: 'id', align: 'left', sortable: true },
   {
@@ -153,12 +199,15 @@ const columns: QTableColumn<MuebleResponseDto>[] = [
     field: 'precioSugerido',
     align: 'right',
     sortable: true,
-    // Se muestra como moneda argentina: $ 15.000,00
-    format: (val: number) =>
-      Number(val).toLocaleString('es-AR', {
-        style: 'currency',
-        currency: 'ARS'
-      })
+    format: (val: number) => formatoMoneda(val)
+  },
+  {
+    name: 'precioCalculado',
+    label: 'Precio calculado',
+    field: 'precioCalculado',
+    align: 'right',
+    sortable: true,
+    format: (val: number) => formatoMoneda(val)
   },
   {
     name: 'acciones',

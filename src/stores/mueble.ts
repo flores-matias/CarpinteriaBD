@@ -4,6 +4,7 @@ import { isAxiosError } from 'axios'
 import { api } from '../boot/axios'
 import type { MuebleResponseDto } from '../models/Mueble/MuebleResponseDto'
 import type { MuebleRequestDto } from '../models/Mueble/MuebleRequestDto'
+import type { MuebleCostoDto } from '../models/Mueble/MuebleCostoDto'
 import { notificarExito } from '../utils/notificar'
 
 export const useMuebleStore = defineStore('mueble', () => {
@@ -11,7 +12,7 @@ export const useMuebleStore = defineStore('mueble', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  /** GET api/Muebles/All */
+  /** GET api/Muebles/All (cada mueble trae costoMateriales y precioCalculado) */
   async function fetchAll() {
     loading.value = true
     error.value = null
@@ -42,6 +43,30 @@ export const useMuebleStore = defineStore('mueble', () => {
       return data
     } catch {
       return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * GET api/Muebles/Costos?Id=...
+   * Desglose del precio: materiales + mano de obra + uso de maquinas = precio calculado.
+   */
+  async function fetchCostos(id: number): Promise<MuebleCostoDto | null> {
+    try {
+      const { data } = await api.get<MuebleCostoDto>(`/Muebles/Costos?Id=${id}`)
+      return data
+    } catch {
+      return null
+    }
+  }
+
+  /** PATCH api/Muebles/UsarPrecioCalculado?Id=... Copia el precio calculado al sugerido. */
+  async function usarPrecioCalculado(id: number) {
+    loading.value = true
+    try {
+      await api.patch(`/Muebles/UsarPrecioCalculado?Id=${id}`)
+      notificarExito('Precio sugerido actualizado')
     } finally {
       loading.value = false
     }
@@ -86,6 +111,8 @@ export const useMuebleStore = defineStore('mueble', () => {
     error,
     fetchAll,
     fetchById,
+    fetchCostos,
+    usarPrecioCalculado,
     create,
     update,
     borrar
