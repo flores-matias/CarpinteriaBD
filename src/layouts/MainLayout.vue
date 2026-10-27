@@ -73,7 +73,7 @@ const linksList: EssentialLinkProps[] = [
   {
     title: 'Proveedores',
     caption: 'Lista de proveedores',
-    icon: 'favorite',
+    icon: 'inventory',
     link: '/proveedores'
   },
   {
