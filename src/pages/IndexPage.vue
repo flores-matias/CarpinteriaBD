@@ -2,7 +2,8 @@
   <q-page class="flex flex-center q-pa-md">
     <q-card class="q-pa-md text-center" style="width: 520px; max-width: 95vw">
       <q-card-section>
-        <q-icon name="carpenter" size="64px" color="primary" />
+        <!-- <q-icon name="carpenter" size="64px" color="primary" /> -->
+        <img src="/logo.png" alt="Carpintería BA" style="height: 110px" />
         <div class="text-h5 q-mt-sm">Carpintería BA</div>
         <div class="text-caption text-grey-7">Sistema de gestión</div>
       </q-card-section>

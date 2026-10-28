@@ -9,7 +9,8 @@
   >
     <q-card class="q-pa-md" style="width: 360px; max-width: 90vw">
       <q-card-section class="text-center q-pb-none">
-        <q-icon name="carpenter" size="48px" color="primary" />
+        <!-- <q-icon name="carpenter" size="48px" color="primary" /> -->
+        <img src="/logo.png" alt="Carpintería BA" style="height: 80px" />
         <div class="text-h6 q-mt-sm">Carpintería BA</div>
         <div class="text-caption text-grey-7">Iniciar sesión</div>
       </q-card-section>

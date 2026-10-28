@@ -1,1 +1,75 @@
-// app global css
+// Estilos globales Carpinteria BA (solo colores)
+
+// Fondo de pagina crema en lugar de blanco puro
+body {
+  background: #f7f2ec;
+}
+
+// ---------- Header: blanco, para que se lean las letras oscuras del logo ----------
+.q-layout .q-header {
+  background-color: #ffffff;
+  color: #341f12;
+  border-bottom: 1px solid #e6d9ca;
+}
+
+// ---------- Menu lateral: wengue ----------
+.q-drawer,
+.q-drawer .q-drawer__content {
+  background: #341f12;
+  color: #e9d9c4;
+}
+
+.q-drawer--bordered {
+  border-color: #4f3321 !important;
+}
+
+// Titulos de seccion ("Menu", "Administracion")
+.q-drawer .q-item__label--header {
+  color: #ad7443;
+}
+
+// Texto chico debajo de cada link
+.q-drawer .q-item__label--caption {
+  color: rgba(233, 217, 196, 0.6);
+}
+
+.q-drawer .q-separator {
+  background: #4f3321;
+}
+
+// Item activo: color arce
+.q-drawer .q-item.q-router-link--active {
+  background: #debc90;
+  color: #341f12;
+  border-radius: 8px;
+  margin: 0 8px;
+
+  .q-item__label--caption {
+    color: #7b4926;
+  }
+}
+
+// Hover suave en los demas items
+.q-drawer .q-item:not(.q-router-link--active):hover {
+  background: rgba(222, 188, 144, 0.1);
+}
+
+// ---------- Tablas: encabezado con tono madera ----------
+.q-table thead tr {
+  background: #f3eae0;
+}
+
+.q-table th {
+  color: #7b4926;
+  font-weight: 600;
+}
+
+.q-table tbody tr:hover {
+  background: #fbf6f0;
+}
+
+// ---------- Tarjetas: borde fino en lugar de la sombra por defecto ----------
+.q-page .q-card {
+  border: 1px solid #e6d9ca;
+  box-shadow: none;
+}

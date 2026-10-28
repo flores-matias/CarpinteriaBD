@@ -12,12 +12,25 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Carpintería BA </q-toolbar-title>
+        <!-- Logo + nombre: al hacer clic vuelve al inicio -->
+        <router-link to="/" class="row items-center no-wrap marca q-ml-sm">
+          <img src="/logo.png" alt="Carpintería BA" style="height: 34px" />
+          <q-toolbar-title class="q-pl-sm"> Carpintería BA </q-toolbar-title>
+        </router-link>
+
+        <q-space />
 
         <template v-if="auth.isAuthenticated">
           <q-icon name="person" class="q-mr-xs" />
           <span class="q-mr-md">{{ auth.userName }}</span>
-          <q-btn flat dense label="Salir" icon="logout" @click="onLogout" />
+          <q-btn
+            flat
+            dense
+            no-caps
+            label="Salir"
+            icon="logout"
+            @click="onLogout"
+          />
         </template>
       </q-toolbar>
     </q-header>
@@ -37,7 +50,7 @@
           v-bind="link"
         />
 
-        <!-- Administracion: el drawer ya solo se ve con sesion, pero queda separado para cuando haya roles -->
+        <!-- Administracion: separada para cuando haya roles -->
         <q-separator class="q-my-sm" />
         <q-item-label header> Administración </q-item-label>
 
@@ -63,6 +76,12 @@
   filter: blur(4px);
   pointer-events: none;
   user-select: none;
+}
+
+/* El logo es un link: sin subrayado y con el color del header */
+.marca {
+  color: inherit;
+  text-decoration: none;
 }
 </style>
 
