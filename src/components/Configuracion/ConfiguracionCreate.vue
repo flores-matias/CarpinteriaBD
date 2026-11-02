@@ -28,6 +28,7 @@
           type="number"
           step="any"
           outlined
+          hint="Porcentaje expresado en proporción: 0.21 = 21%, 1.5 = 150%"
           class="q-mb-sm"
           lazy-rules
           :rules="[

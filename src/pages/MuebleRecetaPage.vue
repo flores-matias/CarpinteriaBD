@@ -36,7 +36,7 @@
           <q-icon name="warning" />
         </template>
         Faltan los margenes en Configuracion ("Mano de obra" y "Uso de
-        maquinas"): el precio calculado solo incluye los materiales.
+        maquinas"): el precio calculado no los incluye.
       </q-banner>
 
       <!-- Desglose del precio -->
@@ -79,6 +79,64 @@
                   {{ formatoMoneda(costos.usoDeMaquinas) }}
                 </q-item-section>
               </q-item>
+
+              <q-separator class="q-my-xs" />
+              <q-item>
+                <q-item-section class="text-weight-medium"
+                  >Subtotal</q-item-section
+                >
+                <q-item-section side class="text-body1 text-weight-medium">
+                  {{ formatoMoneda(costos.subtotal) }}
+                </q-item-section>
+              </q-item>
+
+              <!-- Recargos opcionales: cada uno sobre el precio acumulado -->
+              <q-item
+                v-for="recargo in costos.recargos"
+                :key="recargo.idMuebleConfiguracion"
+              >
+                <q-item-section>
+                  + {{ recargo.clave }}
+                  <q-item-label caption>
+                    {{ formatoPorcentaje(recargo.proporcion) }} sobre
+                    {{ formatoMoneda(recargo.baseCalculo) }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side class="text-body1">
+                  {{ formatoMoneda(recargo.monto) }}
+                </q-item-section>
+                <q-item-section side>
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    size="sm"
+                    icon="close"
+                    color="negative"
+                    :loading="quitandoId === recargo.idMuebleConfiguracion"
+                    @click="quitarRecargo(recargo.idMuebleConfiguracion)"
+                  >
+                    <q-tooltip>Quitar {{ recargo.clave }}</q-tooltip>
+                  </q-btn>
+                </q-item-section>
+              </q-item>
+
+              <q-item>
+                <q-item-section>
+                  <div>
+                    <q-btn
+                      flat
+                      dense
+                      no-caps
+                      color="primary"
+                      icon="add"
+                      label="Agregar recargo"
+                      @click="mostrarRecargo = true"
+                    />
+                  </div>
+                </q-item-section>
+              </q-item>
+
               <q-separator class="q-my-xs" />
               <q-item>
                 <q-item-section class="text-weight-bold"
@@ -147,6 +205,7 @@
               <q-btn
                 class="q-mt-md full-width"
                 unelevated
+                no-caps
                 color="primary"
                 icon="price_check"
                 label="Usar precio calculado"
@@ -178,6 +237,7 @@
           <q-space />
           <q-btn
             unelevated
+            no-caps
             color="primary"
             icon="add"
             label="Agregar insumo"
@@ -244,12 +304,21 @@
       </q-card>
     </template>
 
-    <!-- Alta y modificacion comparten el mismo formulario -->
+    <!-- Alta y modificacion de insumos de la receta -->
     <q-dialog v-model="mostrarFormulario">
       <RecetaMuebleCreate
         :edit-id="editId"
         :id-mueble="idMueble"
         @close="cerrarFormulario"
+      />
+    </q-dialog>
+
+    <!-- Agregar un recargo opcional (IVA, Servicio personalizado, etc.) -->
+    <q-dialog v-model="mostrarRecargo">
+      <MuebleConfiguracionCreate
+        :id-mueble="idMueble"
+        :usados="recargosUsados"
+        @close="cerrarRecargo"
       />
     </q-dialog>
 
@@ -282,14 +351,17 @@ import { useRoute } from 'vue-router'
 import type { QTableColumn } from 'quasar'
 import { useRecetaMuebleStore } from '../stores/recetaMueble'
 import { useMuebleStore } from '../stores/mueble'
+import { useMuebleConfiguracionStore } from '../stores/muebleConfiguracion'
 import type { RecetaMuebleResponseDto } from '../models/RecetaMueble/RecetaMuebleResponseDto'
 import type { MuebleCostoDto } from '../models/Mueble/MuebleCostoDto'
 import RecetaMuebleCreate from '@/components/RecetaMueble/RecetaMuebleCreate.vue'
+import MuebleConfiguracionCreate from '@/components/MuebleConfiguracion/MuebleConfiguracionCreate.vue'
 import { mensajeDeError, notificarError } from '@/utils/notificar'
 
 const route = useRoute()
 const recetaMuebleStore = useRecetaMuebleStore()
 const muebleStore = useMuebleStore()
+const muebleConfiguracionStore = useMuebleConfiguracionStore()
 
 // El id del mueble viene en la URL: /muebles/1/receta
 const idMueble = Number(route.params.id)
@@ -301,6 +373,15 @@ const mostrarFormulario = ref(false)
 const editId = ref<number | null>(null)
 const confirmandoBaja = ref(false)
 const idABorrar = ref<number | null>(null)
+
+// Recargos
+const mostrarRecargo = ref(false)
+const quitandoId = ref<number | null>(null)
+
+// Ids de configuraciones que el mueble ya tiene como recargo (para no ofrecerlas de nuevo)
+const recargosUsados = computed(() =>
+  costos.value ? costos.value.recargos.map(r => r.idConfiguracion) : []
+)
 
 // El boton solo tiene sentido si hay receta y el sugerido es distinto al calculado
 const puedeUsarCalculado = computed(
@@ -315,7 +396,7 @@ function formatoMoneda(val: number) {
   })
 }
 
-// 1.5 -> '150%'   0.1 -> '10%'
+// 1.5 -> '150%'   0.21 -> '21%'
 function formatoPorcentaje(proporcion: number) {
   return `${(proporcion * 100).toLocaleString('es-AR', { maximumFractionDigits: 2 })}%`
 }
@@ -382,6 +463,27 @@ async function usarPrecioCalculado() {
     )
   }
 }
+
+// ---- Recargos ----
+
+function cerrarRecargo() {
+  mostrarRecargo.value = false
+  void recargar()
+}
+
+async function quitarRecargo(idMuebleConfiguracion: number) {
+  quitandoId.value = idMuebleConfiguracion
+  try {
+    await muebleConfiguracionStore.quitar(idMuebleConfiguracion)
+    await recargar()
+  } catch (err) {
+    notificarError(mensajeDeError(err, 'No se pudo quitar el recargo'))
+  } finally {
+    quitandoId.value = null
+  }
+}
+
+// ---- Insumos de la receta ----
 
 function abrirAlta() {
   editId.value = null
