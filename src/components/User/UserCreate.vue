@@ -46,9 +46,10 @@
               /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || 'Ingresa un email valido'
           ]"
         />
-        <!-- Opcional: la fecha se guarda como texto ISO (yyyy-MM-dd) -->
+        <!-- : v-model="form.fechaNacimiento" (si se borraba quedaba '' y habia que corregirlo al enviar) -->
         <q-input
-          v-model="form.fechaNacimiento"
+          :model-value="form.fechaNacimiento ?? ''"
+          @update:model-value="cambiarFecha"
           label="Fecha de nacimiento (opcional)"
           outlined
           class="q-mb-sm"
@@ -67,8 +68,10 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
+                <!--: v-model="form.fechaNacimiento" -->
                 <q-date
-                  v-model="form.fechaNacimiento"
+                  :model-value="form.fechaNacimiento"
+                  @update:model-value="cambiarFecha"
                   mask="YYYY-MM-DD"
                   minimal
                 />
@@ -77,7 +80,6 @@
           </template>
         </q-input>
 
-        <!-- Reglas de contraseña por defecto de ASP.NET Identity -->
         <q-input
           v-model="form.password"
           label="Contraseña"
@@ -115,7 +117,6 @@
         />
       </q-form>
 
-      <!-- Errores que devuelve la API (email repetido, reglas de Identity, etc.) -->
       <q-banner
         v-if="userStore.error"
         class="bg-negative text-white"
@@ -144,7 +145,6 @@ import type { QForm } from 'quasar'
 import { useUserStore } from '@/stores/user'
 import type { UserRegistroRequestDto } from '@/models/User/UserRegistroRequestDto'
 
-// Solo alta: la API todavia no permite editar usuarios, por eso no hay editId
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const userStore = useUserStore()
@@ -153,7 +153,6 @@ const formRef = ref<QForm | null>(null)
 const verPassword = ref(false)
 const confirmarPassword = ref('')
 
-// El formulario completa el mismo DTO que viaja a la API
 const form = ref<UserRegistroRequestDto>({
   nombres: '',
   apellidos: '',
@@ -162,7 +161,10 @@ const form = ref<UserRegistroRequestDto>({
   fechaNacimiento: null
 })
 
-// Al abrir el formulario se limpia el error que haya quedado de un intento anterior
+function cambiarFecha(valor: string | number | null) {
+  form.value.fechaNacimiento = valor ? String(valor) : null
+}
+
 onMounted(() => {
   userStore.error = null
 })
@@ -172,11 +174,12 @@ async function onSubmit() {
   if (!valido) {
     return
   }
-  // Si la fecha quedo vacia se manda null (la API la espera como DateTime?)
-  const creado = await userStore.registrar({
-    ...form.value,
-    fechaNacimiento: form.value.fechaNacimiento || null
-  })
+
+  // const creado = await userStore.registrar({
+  //   ...form.value,
+  //   fechaNacimiento: form.value.fechaNacimiento || null
+  // })
+  const creado = await userStore.registrar(form.value)
   if (creado) {
     emit('close')
   }

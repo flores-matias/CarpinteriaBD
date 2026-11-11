@@ -7,7 +7,7 @@
 
     <q-card-section>
       <q-form ref="formRef" greedy @submit.prevent="onSubmit">
-        <!-- Relacion con Pedido. Al editar queda bloqueado: un pago no se mueve de pedido -->
+        <!--:rules="[(v: number | null) => !!v || 'Selecciona un pedido']" -->
         <q-select
           v-model="form.idPedido"
           :options="pedidosDisponibles"
@@ -21,18 +21,18 @@
           :disable="!!editId"
           :loading="pedidoStore.loading"
           lazy-rules
-          :rules="[(v: number | null) => !!v || 'Selecciona un pedido']"
+          :display-value="form.idPedido ? undefined : ''"
+          :rules="[(v: number) => v > 0 || 'Selecciona un pedido']"
         >
           <template #no-option>
             <q-item>
               <q-item-section class="text-grey">
-                No hay pedidos con saldo pendiente
+                No hay pedidos cn saldo pendiente
               </q-item-section>
             </q-item>
           </template>
         </q-select>
 
-        <!-- Resumen del pedido elegido -->
         <div
           v-if="pedidoElegido"
           class="row q-col-gutter-sm text-center q-mb-md"
@@ -59,6 +59,7 @@
           </div>
         </div>
 
+        <!--:rules="[(v: number | null) => !!v || 'Selecciona el tipo de pago']" -->
         <q-select
           v-model="form.idTipoPago"
           :options="tipoPagoStore.tiposPago"
@@ -71,12 +72,12 @@
           class="q-mb-sm"
           :loading="tipoPagoStore.loading"
           lazy-rules
-          :rules="[(v: number | null) => !!v || 'Selecciona el tipo de pago']"
+          :display-value="form.idTipoPago ? undefined : ''"
+          :rules="[(v: number) => v > 0 || 'Seleccione el tipo de pago']"
         />
 
         <div class="row q-col-gutter-sm">
           <div class="col-6">
-            <!-- Mismas reglas que la API: mayor a 0 y sin superar el saldo -->
             <q-input
               v-model.number="form.monto"
               label="Monto"
@@ -96,7 +97,6 @@
                   'Supera el saldo (' + formatoMoneda(disponible) + ')'
               ]"
             >
-              <!-- Atajo para pagar todo lo que falta -->
               <template v-if="disponible > 0" #append>
                 <q-btn
                   flat
@@ -113,7 +113,6 @@
             </q-input>
           </div>
           <div class="col-6">
-            <!-- La fecha viaja como texto ISO (yyyy-MM-dd) -->
             <q-input
               v-model="form.fechaPago"
               label="Fecha de pago"
@@ -123,7 +122,8 @@
               lazy-rules
               :rules="[
                 (v: string) => (!!v && v.length === 10) || 'Ingresa la fecha',
-                (v: string) => v <= hoy || 'No puede ser posterior a hoy'
+                (v: string) =>
+                  v <= hoy || 'No puede ser posterior al dia actual'
               ]"
             >
               <template #append>
@@ -133,7 +133,6 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <!-- Solo deja elegir hasta hoy -->
                     <q-date
                       v-model="form.fechaPago"
                       mask="YYYY-MM-DD"
@@ -171,7 +170,6 @@ import type { PagoRequestDto } from '@/models/Pago/PagoRequestDto'
 import type { PedidoResponseDto } from '@/models/Pedido/PedidoResponseDto'
 import { mensajeDeError, notificarError } from '@/utils/notificar'
 
-// editId null = alta; con numero = modificacion
 const props = defineProps<{ editId: number | null }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
@@ -182,26 +180,24 @@ const formRef = ref<QForm | null>(null)
 
 const hoy = date.formatDate(Date.now(), 'YYYY-MM-DD')
 
-// Al editar: monto que tenia el pago antes de modificarlo
 const montoOriginal = ref(0)
 
-// Igual al DTO, pero los ids arrancan en null para que los selects aparezcan vacios
-type PagoForm = Omit<PagoRequestDto, 'idPedido' | 'idTipoPago'> & {
-  idPedido: number | null
-  idTipoPago: number | null
-}
+// type PagoForm = Omit<PagoRequestDto, 'idPedido' | 'idTipoPago'> & {
+//   idPedido: number | null
+//   idTipoPago: number | null
+// }
 
-const form = ref<PagoForm>({
-  idPedido: null,
-  idTipoPago: null,
+// const form = ref<PagoForm>({
+//   idPedido: null,
+//   idTipoPago: null,
+
+const form = ref<PagoRequestDto>({
+  idPedido: 0,
+  idTipoPago: 0,
   monto: 0,
   fechaPago: hoy
 })
 
-/**
- * Alta: solo pedidos con saldo y que no esten cancelados.
- * Edicion: todos (el select esta bloqueado, pero tiene que encontrar el pedido para mostrarlo).
- */
 const pedidosDisponibles = computed(() =>
   props.editId
     ? pedidoStore.pedidos
@@ -214,7 +210,6 @@ const pedidoElegido = computed<PedidoResponseDto | null>(
   () => pedidoStore.pedidos.find(p => p.id === form.value.idPedido) ?? null
 )
 
-// Lo maximo que se puede pagar. Al editar, el monto anterior de este pago "vuelve" al saldo.
 const disponible = computed(() =>
   pedidoElegido.value ? pedidoElegido.value.saldo + montoOriginal.value : 0
 )
@@ -223,7 +218,6 @@ function etiquetaPedido(pedido: PedidoResponseDto) {
   return `#${pedido.id} · ${pedido.cliente} · Saldo ${formatoMoneda(pedido.saldo)}`
 }
 
-// q-date pasa las fechas como 'YYYY/MM/DD'
 function fechaHabilitada(fecha: string) {
   return fecha.replaceAll('/', '-') <= hoy
 }
@@ -236,10 +230,8 @@ function formatoMoneda(val: number) {
 }
 
 onMounted(async () => {
-  // Pedidos y tipos de pago para los selects: se piden en paralelo
   const cargas = Promise.all([pedidoStore.fetchAll(), tipoPagoStore.fetchAll()])
 
-  // Si es modificacion, se traen los datos actuales del pago
   if (props.editId) {
     const pago = await pagoStore.fetchById(props.editId)
     if (pago) {
@@ -248,7 +240,6 @@ onMounted(async () => {
         idPedido: pago.idPedido,
         idTipoPago: pago.idTipoPago,
         monto: pago.monto,
-        // La API devuelve '2026-10-27T00:00:00': el formulario usa solo 'yyyy-MM-dd'
         fechaPago: pago.fechaPago.substring(0, 10)
       }
     }
@@ -262,17 +253,18 @@ async function onSubmit() {
   if (!valido) {
     return
   }
-  // Pasada la validacion, los ids ya no pueden ser null
-  const pago: PagoRequestDto = {
-    ...form.value,
-    idPedido: form.value.idPedido as number,
-    idTipoPago: form.value.idTipoPago as number
-  }
+  // const pago: PagoRequestDto = {
+  //   ...form.value,
+  //   idPedido: form.value.idPedido as number,
+  //   idTipoPago: form.value.idTipoPago as number
+  // }
   try {
     if (props.editId) {
-      await pagoStore.update(props.editId, pago)
+      // await pagoStore.update(props.editId, pago)
+      await pagoStore.update(props.editId, form.value)
     } else {
-      await pagoStore.create(pago)
+      // await pagoStore.create(pago)
+      await pagoStore.create(form.value)
     }
     emit('close')
   } catch (err) {

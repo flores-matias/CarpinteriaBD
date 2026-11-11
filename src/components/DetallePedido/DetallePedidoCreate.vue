@@ -10,7 +10,7 @@
 
     <q-card-section>
       <q-form ref="formRef" greedy @submit.prevent="onSubmit">
-        <!-- Solo muebles que todavia no estan en el pedido (la API no permite repetirlos) -->
+        <!--:rules="[(v: number | null) => !!v || 'Selecciona un mueble']" -->
         <q-select
           v-model="form.idMueble"
           :options="mueblesDisponibles"
@@ -23,10 +23,10 @@
           class="q-mb-sm"
           :loading="muebleStore.loading"
           lazy-rules
-          :rules="[(v: number | null) => !!v || 'Selecciona un mueble']"
+          :display-value="form.idMueble ? undefined : ''"
+          :rules="[(v: number) => v > 0 || 'Selecciona un mueble']"
           @update:model-value="alElegirMueble"
         >
-          <!-- Cada opcion muestra tambien su precio sugerido -->
           <template #option="scope">
             <q-item v-bind="scope.itemProps">
               <q-item-section>
@@ -42,7 +42,7 @@
               <q-item-section class="text-grey">
                 {{
                   muebleStore.muebles.length === 0
-                    ? 'No hay muebles cargados. Agregalos desde Muebles.'
+                    ? 'No hay muebles cargados. Agregalos desde Muebles'
                     : 'Todos los muebles ya estan en el pedido'
                 }}
               </q-item-section>
@@ -52,7 +52,6 @@
 
         <div class="row q-col-gutter-sm">
           <div class="col-4">
-            <!-- Cantidad es int en la API: solo enteros desde 1 -->
             <q-input
               v-model.number="form.cantidad"
               label="Cantidad"
@@ -69,7 +68,6 @@
             />
           </div>
           <div class="col-8">
-            <!-- Arranca con el precio sugerido del mueble, pero se puede ajustar -->
             <q-input
               v-model.number="form.precioVentaReal"
               label="Precio de venta (unitario)"
@@ -89,7 +87,6 @@
           </div>
         </div>
 
-        <!-- Subtotal en vivo -->
         <div class="row items-center justify-between q-mt-sm">
           <span class="text-caption text-grey-7">Subtotal</span>
           <span class="text-h6">{{ formatoMoneda(subtotal) }}</span>
@@ -117,7 +114,6 @@ import { useMuebleStore } from '@/stores/mueble'
 import type { DetallePedidoRequestDto } from '@/models/DetallePedido/DetallePedidoRequestDto'
 import { mensajeDeError, notificarError } from '@/utils/notificar'
 
-// editId null = alta; con numero = modificacion. idPedido: pedido al que pertenece el detalle
 const props = defineProps<{ editId: number | null; idPedido: number }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
@@ -125,22 +121,21 @@ const detallePedidoStore = useDetallePedidoStore()
 const muebleStore = useMuebleStore()
 const formRef = ref<QForm | null>(null)
 
-// Igual al DTO, pero idMueble arranca en null para que el select aparezca vacio
-type DetalleForm = Omit<DetallePedidoRequestDto, 'idMueble'> & {
-  idMueble: number | null
-}
+// type DetalleForm = Omit<DetallePedidoRequestDto, 'idMueble'> & {
+//   idMueble: number | null
+// }
 
-const form = ref<DetalleForm>({
+// const form = ref<DetalleForm>({
+//   idPedido: props.idPedido,
+//   idMueble: null,
+
+const form = ref<DetallePedidoRequestDto>({
   idPedido: props.idPedido,
-  idMueble: null,
+  idMueble: 0,
   cantidad: 1,
   precioVentaReal: 0
 })
 
-/**
- * Muebles que se pueden elegir: los que no estan ya en el pedido.
- * Al editar, se incluye el mueble de este mismo detalle.
- */
 const mueblesDisponibles = computed(() => {
   const usados = detallePedidoStore.detalles
     .filter(d => d.id !== props.editId)
@@ -154,8 +149,8 @@ const subtotal = computed(
     (Number(form.value.precioVentaReal) || 0)
 )
 
-// Al elegir un mueble, se propone su precio sugerido (el usuario lo puede cambiar)
-function alElegirMueble(idMueble: number | null) {
+// function alElegirMueble(idMueble: number | null) {
+function alElegirMueble(idMueble: number) {
   const mueble = muebleStore.muebles.find(m => m.id === idMueble)
   if (mueble) {
     form.value.precioVentaReal = mueble.precioSugerido
@@ -172,7 +167,6 @@ function formatoMoneda(val: number) {
 onMounted(async () => {
   const cargaMuebles = muebleStore.fetchAll()
 
-  // Si es modificacion, se traen los datos actuales del detalle
   if (props.editId) {
     const detalle = await detallePedidoStore.fetchById(props.editId)
     if (detalle) {
@@ -193,16 +187,18 @@ async function onSubmit() {
   if (!valido) {
     return
   }
-  // Pasada la validacion, idMueble ya no puede ser null
-  const detalle: DetallePedidoRequestDto = {
-    ...form.value,
-    idMueble: form.value.idMueble as number
-  }
+
+  // const detalle: DetallePedidoRequestDto = {
+  //   ...form.value,
+  //   idMueble: form.value.idMueble as number
+  // }
   try {
     if (props.editId) {
-      await detallePedidoStore.update(props.editId, detalle)
+      //await detallePedidoStore.update(props.editId, detalle)
+      await detallePedidoStore.update(props.editId, form.value)
     } else {
-      await detallePedidoStore.create(detalle)
+      //await detallePedidoStore.create(detalle)
+      await detallePedidoStore.create(form.value)
     }
     emit('close')
   } catch (err) {

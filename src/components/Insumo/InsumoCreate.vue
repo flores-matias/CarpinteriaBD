@@ -21,7 +21,7 @@
           ]"
         />
 
-        <!-- Relacion con Proveedor: se muestra la razon social y se guarda el id -->
+        <!--rules="[(v: number | null) => !!v || 'Selecciona un proveedor']" -->
         <q-select
           v-model="form.idProveedor"
           :options="proveedorStore.proveedores"
@@ -34,7 +34,8 @@
           class="q-mb-sm"
           :loading="proveedorStore.loading"
           lazy-rules
-          :rules="[(v: number | null) => !!v || 'Selecciona un proveedor']"
+          :display-value="form.idProveedor ? undefined : ''"
+          :rules="[(v: number) => v > 0 || 'Selecciona un proveedor']"
         >
           <template #no-option>
             <q-item>
@@ -47,7 +48,6 @@
 
         <div class="row q-col-gutter-sm">
           <div class="col-6">
-            <!-- StockActual es decimal en la API (ej: 2.5 metros) -->
             <q-input
               v-model.number="form.stockActual"
               label="Stock actual"
@@ -76,7 +76,6 @@
           </div>
         </div>
 
-        <!-- La API exige precio mayor a 0 (ActualizarPrecioCosto lanza excepcion si no) -->
         <q-input
           v-model.number="form.precioCostoActual"
           label="Precio de costo"
@@ -125,37 +124,25 @@ const insumoStore = useInsumoStore()
 const proveedorStore = useProveedorStore()
 const formRef = ref<QForm | null>(null)
 
-// Opciones fijas de unidad de medida (se pueden agregar mas a la lista)
-const unidadesMedida = [
-  'Unidad',
-  'Placa',
-  'Metro',
-  'Metro cuadrado',
-  'Metro cubico',
-  'Pie',
-  'Kilo',
-  'Litro',
-  'Caja'
-]
+const unidadesMedida = ['Unidad', 'Metro', 'Metro cuadrado', 'Gramo', 'Litro']
 
-// Igual al DTO, pero idProveedor arranca en null para que el select aparezca vacio
-type InsumoForm = Omit<InsumoRequestDto, 'idProveedor'> & {
-  idProveedor: number | null
-}
+// type InsumoForm = Omit<InsumoRequestDto, 'idProveedor'> & {
+//   idProveedor: number | null
+// }
 
-const form = ref<InsumoForm>({
+// const form = ref<InsumoForm>({
+
+const form = ref<InsumoRequestDto>({
   nombre: '',
   stockActual: 0,
   unidadMedida: '',
   precioCostoActual: 0,
-  idProveedor: null
+  idProveedor: 0
 })
 
 onMounted(async () => {
-  // Se cargan los proveedores para el select (siempre, para tener la lista actualizada)
   const cargaProveedores = proveedorStore.fetchAll()
 
-  // Si es modificacion, se traen los datos actuales del insumo
   if (props.editId) {
     const insumo = await insumoStore.fetchById(props.editId)
     if (insumo) {
@@ -177,16 +164,18 @@ async function onSubmit() {
   if (!valido) {
     return
   }
-  // Pasada la validacion, idProveedor ya no puede ser null
-  const insumo: InsumoRequestDto = {
-    ...form.value,
-    idProveedor: form.value.idProveedor as number
-  }
+
+  // const insumo: InsumoRequestDto = {
+  //   ...form.value,
+  //   idProveedor: form.value.idProveedor as number
+  // }
   try {
     if (props.editId) {
-      await insumoStore.update(props.editId, insumo)
+      // await insumoStore.update(props.editId, insumo)
+      await insumoStore.update(props.editId, form.value)
     } else {
-      await insumoStore.create(insumo)
+      // await insumoStore.create(insumo)
+      await insumoStore.create(form.value)
     }
     emit('close')
   } catch (err) {

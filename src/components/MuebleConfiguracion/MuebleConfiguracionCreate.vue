@@ -10,9 +10,9 @@
 
     <q-card-section>
       <q-form ref="formRef" greedy @submit.prevent="onSubmit">
-        <!-- Solo configuraciones extra que el mueble todavia no tiene -->
+        <!-- : v-model="idConfiguracion" :rules="[(v: number | null) => !!v || 'Selecciona un recargo']" -->
         <q-select
-          v-model="idConfiguracion"
+          v-model="form.idConfiguracion"
           :options="disponibles"
           option-value="id"
           option-label="clave"
@@ -23,9 +23,9 @@
           autofocus
           :loading="configuracionStore.loading"
           lazy-rules
-          :rules="[(v: number | null) => !!v || 'Selecciona un recargo']"
+          :display-value="form.idConfiguracion ? undefined : ''"
+          :rules="[(v: number) => v > 0 || 'Selecciona un recargo']"
         >
-          <!-- Cada opcion muestra tambien su porcentaje -->
           <template #option="scope">
             <q-item v-bind="scope.itemProps">
               <q-item-section>
@@ -43,7 +43,7 @@
                 {{
                   hayExtras
                     ? 'El mueble ya tiene todos los recargos disponibles'
-                    : 'No hay recargos creados. Agregalos en Configuraciones (ej: IVA = 0.21).'
+                    : 'No hay recargo creados. Agregalos en Configuraciones'
                 }}
               </q-item-section>
             </q-item>
@@ -69,9 +69,9 @@ import { computed, onMounted, ref } from 'vue'
 import type { QForm } from 'quasar'
 import { useMuebleConfiguracionStore } from '@/stores/muebleConfiguracion'
 import { useConfiguracionStore } from '@/stores/configuracion'
+import type { MuebleConfiguracionRequestDto } from '@/models/MuebleConfiguracion/MuebleConfiguracionRequestDto'
 import { mensajeDeError, notificarError } from '@/utils/notificar'
 
-// idMueble: mueble al que se le agrega el recargo. usados: ids de configuraciones que ya tiene
 const props = defineProps<{ idMueble: number; usados: number[] }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
@@ -79,12 +79,15 @@ const muebleConfiguracionStore = useMuebleConfiguracionStore()
 const configuracionStore = useConfiguracionStore()
 const formRef = ref<QForm | null>(null)
 
-const idConfiguracion = ref<number | null>(null)
+// const idConfiguracion = ref<number | null>(null)
 
-// Se aplican siempre a todos los muebles: no se ofrecen como recargo (igual que ClavesConfiguracion en la API)
+const form = ref<MuebleConfiguracionRequestDto>({
+  idMueble: props.idMueble,
+  idConfiguracion: 0
+})
+
 const CLAVES_FIJAS = ['Mano de obra', 'Uso de maquinas']
 
-// Configuraciones que pueden usarse como recargo (todas menos las fijas)
 const extras = computed(() =>
   configuracionStore.configuraciones.filter(
     c => !CLAVES_FIJAS.includes(c.clave)
@@ -93,12 +96,10 @@ const extras = computed(() =>
 
 const hayExtras = computed(() => extras.value.length > 0)
 
-// Las que el mueble todavia no tiene
 const disponibles = computed(() =>
   extras.value.filter(c => !props.usados.includes(c.id))
 )
 
-// 0.21 -> '21%'
 function formatoPorcentaje(proporcion: number) {
   return `${(proporcion * 100).toLocaleString('es-AR', { maximumFractionDigits: 2 })}%`
 }
@@ -109,14 +110,16 @@ onMounted(() => {
 
 async function onSubmit() {
   const valido = await formRef.value?.validate()
-  if (!valido || idConfiguracion.value === null) {
+  // if (!valido || idConfiguracion.value === null) {
+  if (!valido) {
     return
   }
   try {
-    await muebleConfiguracionStore.agregar({
-      idMueble: props.idMueble,
-      idConfiguracion: idConfiguracion.value
-    })
+    // await muebleConfiguracionStore.agregar({
+    //   idMueble: props.idMueble,
+    //   idConfiguracion: idConfiguracion.value
+    // })
+    await muebleConfiguracionStore.agregar(form.value)
     emit('close')
   } catch (err) {
     notificarError(mensajeDeError(err, 'No se pudo agregar el recargo'))

@@ -11,7 +11,7 @@
 
     <q-card-section>
       <q-form ref="formRef" greedy @submit.prevent="onSubmit">
-        <!-- Solo insumos que todavia no estan en la receta (la API no permite repetirlos) -->
+        <!-- :rules="[(v: number | null) => !!v || 'Selecciona un insumo']" -->
         <q-select
           v-model="form.idInsumo"
           :options="insumosDisponibles"
@@ -24,9 +24,9 @@
           class="q-mb-sm"
           :loading="insumoStore.loading"
           lazy-rules
-          :rules="[(v: number | null) => !!v || 'Selecciona un insumo']"
+          :display-value="form.idInsumo ? undefined : ''"
+          :rules="[(v: number) => v > 0 || 'Selecciona un insumo']"
         >
-          <!-- Cada opcion muestra tambien su precio de costo y unidad -->
           <template #option="scope">
             <q-item v-bind="scope.itemProps">
               <q-item-section>
@@ -51,7 +51,6 @@
           </template>
         </q-select>
 
-        <!-- Cantidad con desperdicio: admite decimales (ej: 1,15 metros) -->
         <q-input
           v-model.number="form.cantidadConDesperdicio"
           label="Cantidad (con desperdicio)"
@@ -59,7 +58,7 @@
           step="0.01"
           :suffix="insumoElegido?.unidadMedida"
           outlined
-          hint="Inclui lo que se pierde al cortar (ej: 1 metro + 15% = 1,15)"
+          hint="Incluir lo que se pirede al cortar (ej: 1 metro + 15% = 1,15)"
           lazy-rules
           :rules="[
             (v: number | string) =>
@@ -69,7 +68,6 @@
           ]"
         />
 
-        <!-- Costo de este insumo en el mueble, en vivo -->
         <div
           v-if="insumoElegido"
           class="row items-center justify-between q-mt-md"
@@ -112,21 +110,20 @@ const recetaMuebleStore = useRecetaMuebleStore()
 const insumoStore = useInsumoStore()
 const formRef = ref<QForm | null>(null)
 
-// Igual al DTO, pero idInsumo arranca en null para que el select aparezca vacio
-type RecetaForm = Omit<RecetaMuebleRequestDto, 'idInsumo'> & {
-  idInsumo: number | null
-}
+// type RecetaForm = Omit<RecetaMuebleRequestDto, 'idInsumo'> & {
+//   idInsumo: number | null
+// }
 
-const form = ref<RecetaForm>({
+// const form = ref<RecetaForm>({
+//   idMueble: props.idMueble,
+//   idInsumo: null,
+
+const form = ref<RecetaMuebleRequestDto>({
   idMueble: props.idMueble,
-  idInsumo: null,
+  idInsumo: 0,
   cantidadConDesperdicio: 1
 })
 
-/**
- * Insumos que se pueden elegir: los que no estan ya en la receta.
- * Al editar, se incluye el insumo de este mismo renglon.
- */
 const insumosDisponibles = computed(() => {
   const usados = recetaMuebleStore.receta
     .filter(r => r.id !== props.editId)
@@ -154,7 +151,6 @@ function formatoMoneda(val: number) {
 onMounted(async () => {
   const cargaInsumos = insumoStore.fetchAll()
 
-  // Si es modificacion, se traen los datos actuales del renglon
   if (props.editId) {
     const renglon = await recetaMuebleStore.fetchById(props.editId)
     if (renglon) {
@@ -174,21 +170,23 @@ async function onSubmit() {
   if (!valido) {
     return
   }
-  // Pasada la validacion, idInsumo ya no puede ser null
-  const renglon: RecetaMuebleRequestDto = {
-    ...form.value,
-    idInsumo: form.value.idInsumo as number
-  }
+
+  // const renglon: RecetaMuebleRequestDto = {
+  //   ...form.value,
+  //   idInsumo: form.value.idInsumo as number
+  // }
   try {
     if (props.editId) {
-      await recetaMuebleStore.update(props.editId, renglon)
+      //await recetaMuebleStore.update(props.editId, renglon)
+      await recetaMuebleStore.update(props.editId, form.value)
     } else {
-      await recetaMuebleStore.create(renglon)
+      //await recetaMuebleStore.create(renglon)
+      await recetaMuebleStore.create(form.value)
     }
     emit('close')
   } catch (err) {
     notificarError(
-      mensajeDeError(err, 'No se pudo guardar el insumo de la receta')
+      mensajeDeError(err, 'No se pudo guardar el mueble del pedido')
     )
   }
 }
