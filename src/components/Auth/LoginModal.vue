@@ -73,7 +73,6 @@ import type { LoginUserRequestDto } from '@/models/Auth/LoginUserRequestDto'
 const auth = useAuthStore()
 const formRef = ref<QForm | null>(null)
 
-// El popup se muestra mientras no haya sesion, y se cierra solo al loguearse
 const mostrar = ref(!auth.isAuthenticated)
 watch(
   () => auth.isAuthenticated,

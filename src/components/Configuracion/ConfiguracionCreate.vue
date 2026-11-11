@@ -21,7 +21,6 @@
             (v: string) => (!!v && v.trim().length > 0) || 'Ingresa la clave'
           ]"
         />
-        <!-- Valor es decimal en la API: se usa v-model.number para que viaje como numero -->
         <q-input
           v-model.number="form.valor"
           label="Valor"
@@ -81,14 +80,12 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 const configuracionStore = useConfiguracionStore()
 const formRef = ref<QForm | null>(null)
 
-// El formulario completa el mismo DTO que viaja a la API
 const form = ref<ConfiguracionRequestDto>({
   clave: '',
   valor: 0,
   descripcion: ''
 })
 
-// Si es modificacion, se traen los datos actuales de la configuracion
 onMounted(async () => {
   if (props.editId) {
     const configuracion = await configuracionStore.fetchById(props.editId)

@@ -45,19 +45,16 @@ import { useTipoPagoStore } from '@/stores/tipoPago'
 import type { TipoPagoRequestDto } from '@/models/TipoPago/TipoPagoRequestDto'
 import { mensajeDeError, notificarError } from '@/utils/notificar'
 
-// editId null = alta; con numero = modificacion
 const props = defineProps<{ editId: number | null }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const tipoPagoStore = useTipoPagoStore()
 const formRef = ref<QForm | null>(null)
 
-// El formulario completa el mismo DTO que viaja a la API
 const form = ref<TipoPagoRequestDto>({
   descripcion: ''
 })
 
-// Si es modificacion, se traen los datos actuales del tipo de pago
 onMounted(async () => {
   if (props.editId) {
     const tipoPago = await tipoPagoStore.fetchById(props.editId)

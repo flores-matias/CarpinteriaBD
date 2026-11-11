@@ -34,7 +34,6 @@
               (!!v && v.trim().length > 0) || 'Ingresa la descripcion'
           ]"
         />
-        <!-- PrecioSugerido es decimal en la API: se usa v-model.number para que viaje como numero -->
         <q-input
           v-model.number="form.precioSugerido"
           label="Precio sugerido"
@@ -74,21 +73,18 @@ import { useMuebleStore } from '@/stores/mueble'
 import type { MuebleRequestDto } from '@/models/Mueble/MuebleRequestDto'
 import { mensajeDeError, notificarError } from '@/utils/notificar'
 
-// editId null = alta; con numero = modificacion
 const props = defineProps<{ editId: number | null }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const muebleStore = useMuebleStore()
 const formRef = ref<QForm | null>(null)
 
-// El formulario completa el mismo DTO que viaja a la API
 const form = ref<MuebleRequestDto>({
   nombre: '',
   descripcion: '',
   precioSugerido: 0
 })
 
-// Si es modificacion, se traen los datos actuales del mueble
 onMounted(async () => {
   if (props.editId) {
     const mueble = await muebleStore.fetchById(props.editId)

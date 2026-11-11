@@ -94,14 +94,12 @@ import { useClienteStore } from '@/stores/cliente'
 import type { ClienteRequestDto } from '@/models/Cliente/ClienteRequestDto'
 import { mensajeDeError, notificarError } from '@/utils/notificar'
 
-// editId null = alta; con numero = modificacion
 const props = defineProps<{ editId: number | null }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const clienteStore = useClienteStore()
 const formRef = ref<QForm | null>(null)
 
-// El formulario completa el mismo DTO que viaja a la API
 const form = ref<ClienteRequestDto>({
   nombre: '',
   apellido: '',
@@ -110,7 +108,6 @@ const form = ref<ClienteRequestDto>({
   email: ''
 })
 
-// Si es modificacion, se traen los datos actuales del cliente
 onMounted(async () => {
   if (props.editId) {
     const cliente = await clienteStore.fetchById(props.editId)

@@ -27,7 +27,7 @@
           <template #no-option>
             <q-item>
               <q-item-section class="text-grey">
-                No hay pedidos cn saldo pendiente
+                No hay pedidos con saldo pendiente
               </q-item-section>
             </q-item>
           </template>

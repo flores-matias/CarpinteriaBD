@@ -58,7 +58,7 @@
           step="0.01"
           :suffix="insumoElegido?.unidadMedida"
           outlined
-          hint="Incluir lo que se pirede al cortar (ej: 1 metro + 15% = 1,15)"
+          hint="Incluir el despericdio (Ej: en un corte se pierde 0.4mm entonces se pone 1.04)"
           lazy-rules
           :rules="[
             (v: number | string) =>

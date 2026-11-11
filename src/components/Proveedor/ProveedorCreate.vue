@@ -70,21 +70,18 @@ import { useProveedorStore } from '@/stores/proveedor'
 import type { ProveedorRequestDto } from '@/models/Proveedor/ProveedorRequestDto'
 import { mensajeDeError, notificarError } from '@/utils/notificar'
 
-// editId null = alta; con numero = modificacion
 const props = defineProps<{ editId: number | null }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const proveedorStore = useProveedorStore()
 const formRef = ref<QForm | null>(null)
 
-// El formulario completa el mismo DTO que viaja a la API
 const form = ref<ProveedorRequestDto>({
   razonSocial: '',
   telefono: '',
   email: ''
 })
 
-// Si es modificacion, se traen los datos actuales del proveedor
 onMounted(async () => {
   if (props.editId) {
     const proveedor = await proveedorStore.fetchById(props.editId)
