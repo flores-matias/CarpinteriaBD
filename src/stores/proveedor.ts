@@ -61,7 +61,7 @@ export const useProveedorStore = defineStore('proveedor', () => {
     loading.value = true
     try {
       await api.put(`/Proveedores?Id=${id}`, proveedor)
-      notificarExito('Provedor modificado')
+      notificarExito('Proveedor modificado')
     } finally {
       loading.value = false
     }

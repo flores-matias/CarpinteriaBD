@@ -58,7 +58,7 @@
           step="0.01"
           :suffix="insumoElegido?.unidadMedida"
           outlined
-          hint="Incluir el despericdio (Ej: en un corte se pierde 0.4mm entonces se pone 1.04)"
+          hint="Incluir el desperdicio (Ej: si se pierde un 4%, pone 1,04)"
           lazy-rules
           :rules="[
             (v: number | string) =>
@@ -186,7 +186,7 @@ async function onSubmit() {
     emit('close')
   } catch (err) {
     notificarError(
-      mensajeDeError(err, 'No se pudo guardar el mueble del pedido')
+      mensajeDeError(err, 'No se pudo guardar el insumo del pedido')
     )
   }
 }

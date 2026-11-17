@@ -127,7 +127,7 @@ const columns: QTableColumn<ProveedorResponseDto>[] = [
   { name: 'id', label: 'Id', field: 'id', align: 'left', sortable: true },
   {
     name: 'razonSocial',
-    label: 'RazonSocial',
+    label: 'Razon Social',
     field: 'razonSocial',
     align: 'left',
     sortable: true
