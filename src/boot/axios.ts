@@ -13,7 +13,7 @@ declare module 'vue' {
 // Tiene que coincidir con el perfil "https" de launchSettings.json del back (puerto 7236).
 // Los stores importan `api` directamente; `$api` queda disponible en los componentes.
 const api = axios.create({
-  baseURL: 'https://localhost:7236/api',
+  baseURL: 'https://localhost:7026/api',
   headers: { 'Content-Type': 'application/json' }
 })
 
